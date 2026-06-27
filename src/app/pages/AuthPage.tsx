@@ -91,15 +91,25 @@ function FieldGroup({ label, children }: { label: string; children: React.ReactN
   );
 }
 
+// GitHub SVG icon
+function GitHubIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
 // ── LOGIN FORM ────────────────────────────────────────────────────────────────
 function LoginForm({
-  onSwitch, onLogin, onGoogleLogin,
+  onSwitch, onLogin, onGoogleLogin, onGithubLogin,
   email, setEmail, password, setPassword,
   error, submitting,
 }: {
   onSwitch: () => void;
   onLogin: () => void;
   onGoogleLogin: () => void;
+  onGithubLogin: () => void;
   email: string; setEmail: (v: string) => void;
   password: string; setPassword: (v: string) => void;
   error: string;
@@ -114,7 +124,7 @@ function LoginForm({
 
       <div style={{ background: "rgba(30,107,230,0.12)", border: "1px solid rgba(30,107,230,0.3)", borderRadius: 8, padding: "10px 12px", display: "flex", alignItems: "center", gap: 10, marginBottom: "1.25rem", fontSize: 12.5, color: "#6AABFF", lineHeight: 1.5 }}>
         <i className="ti ti-info-circle" aria-hidden="true" style={{ fontSize: 16, flexShrink: 0 }} />
-        Use your registered email to access your civic dashboard.
+        Use your registered email or a social account to sign in.
       </div>
 
       {error && (
@@ -157,14 +167,15 @@ function LoginForm({
       </div>
 
       <div style={{ display: "flex", gap: 8 }}>
+        {/* Google */}
         <button
           onClick={onGoogleLogin}
           disabled={submitting}
-          style={{ flex: 1, padding: 9, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.55)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.07)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.8)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.55)"; }}
+          style={{ flex: 1, padding: 9, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.7)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, transition: "all 0.15s" }}
+          onMouseEnter={(e) => { if (!submitting) { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; } }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -173,12 +184,15 @@ function LoginForm({
           Google
         </button>
 
+        {/* GitHub — NOW FULLY ENABLED */}
         <button
-          disabled
-          title="GitHub login coming soon"
-          style={{ flex: 1, padding: 9, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.55)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, opacity: 0.5 }}
+          onClick={onGithubLogin}
+          disabled={submitting}
+          style={{ flex: 1, padding: 9, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.7)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, transition: "all 0.15s" }}
+          onMouseEnter={(e) => { if (!submitting) { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; } }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; }}
         >
-          <i className="ti ti-brand-github" aria-hidden="true" />
+          <GitHubIcon />
           GitHub
         </button>
       </div>
@@ -195,13 +209,14 @@ function LoginForm({
 
 // ── SIGNUP FORM ───────────────────────────────────────────────────────────────
 function SignupForm({
-  onSwitch, onSignup, onGoogleLogin,
+  onSwitch, onSignup, onGoogleLogin, onGithubLogin,
   email, setEmail, password, setPassword,
   error, submitting,
 }: {
   onSwitch: () => void;
   onSignup: (firstName: string, lastName: string) => void;
   onGoogleLogin: () => void;
+  onGithubLogin: () => void;
   email: string; setEmail: (v: string) => void;
   password: string; setPassword: (v: string) => void;
   error: string;
@@ -281,21 +296,36 @@ function SignupForm({
         <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
       </div>
 
-      <button
-        onClick={onGoogleLogin}
-        disabled={submitting}
-        style={{ width: "100%", padding: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.7)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.07)"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; }}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-        </svg>
-        Register with Google &amp; explore my city
-      </button>
+      <div style={{ display: "flex", gap: 8 }}>
+        {/* Google */}
+        <button
+          onClick={onGoogleLogin}
+          disabled={submitting}
+          style={{ flex: 1, padding: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.7)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, transition: "all 0.15s" }}
+          onMouseEnter={(e) => { if (!submitting) { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; } }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; }}
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          Google
+        </button>
+
+        {/* GitHub — NOW FULLY ENABLED */}
+        <button
+          onClick={onGithubLogin}
+          disabled={submitting}
+          style={{ flex: 1, padding: 11, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 9, color: "rgba(255,255,255,0.7)", fontSize: 13, fontFamily: "'Inter', sans-serif", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, transition: "all 0.15s" }}
+          onMouseEnter={(e) => { if (!submitting) { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; } }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)"; }}
+        >
+          <GitHubIcon />
+          GitHub
+        </button>
+      </div>
 
       <p style={{ textAlign: "center", marginTop: "1rem", fontSize: 13, color: "rgba(255,255,255,0.3)" }}>
         Already a member?{" "}
@@ -316,71 +346,45 @@ export default function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
-  const { loginWithGoogle, user, loading } = useApp();
+  const { loginWithGoogle, loginWithGithub, user, loading } = useApp();
 
-  // THE KEY FIX: this is the ONLY place we navigate to /dashboard.
-  // All auth handlers just fire the Firebase call and stop.
-  // Once Firebase confirms auth, onAuthStateChanged updates `user` in
-  // AppContext, which triggers this effect and navigates cleanly.
   useEffect(() => {
     if (!loading && user) {
       navigate("/dashboard");
     }
   }, [user, loading, navigate]);
 
-  // Clear error whenever tab or fields change
   useEffect(() => { setError(""); }, [tab, email, password]);
 
-  // ── Email / password login ────────────────────────────────────────────────
-  // No navigate() here — the useEffect above handles it once user is set.
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please enter your email and password.");
-      return;
-    }
-    setSubmitting(true);
-    setError("");
+    if (!email || !password) { setError("Please enter your email and password."); return; }
+    setSubmitting(true); setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Do NOT navigate here. Let onAuthStateChanged → useEffect do it.
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
-      if (
-        code === "auth/user-not-found" ||
-        code === "auth/wrong-password" ||
-        code === "auth/invalid-credential"
-      ) {
+      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
         setError("Incorrect email or password. Please try again.");
       } else if (code === "auth/invalid-email") {
         setError("That doesn't look like a valid email address.");
       } else if (code === "auth/too-many-requests") {
         setError("Too many attempts. Please wait a moment and try again.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email sign-in is not enabled. Please contact support.");
       } else {
-        setError(code === "auth/operation-not-allowed" ? "Email sign-in is not enabled. Please contact support." : "Sign-in failed. Please try again.");
+        setError("Sign-in failed. Please try again.");
       }
-      // Only reset submitting on error — on success we keep spinner until redirect
       setSubmitting(false);
     }
   };
 
-  // ── Email / password signup ───────────────────────────────────────────────
   const handleSignup = async (firstName: string, lastName: string) => {
-    if (!firstName || !email || !password) {
-      setError("Please fill in your name, email, and password.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-    setSubmitting(true);
-    setError("");
+    if (!firstName || !email || !password) { setError("Please fill in your name, email, and password."); return; }
+    if (password.length < 8) { setError("Password must be at least 8 characters."); return; }
+    setSubmitting(true); setError("");
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(credential.user, {
-        displayName: `${firstName} ${lastName}`.trim(),
-      });
-      // Do NOT navigate here. Let onAuthStateChanged → useEffect do it.
+      await updateProfile(credential.user, { displayName: `${firstName} ${lastName}`.trim() });
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
       if (code === "auth/email-already-in-use") {
@@ -389,30 +393,43 @@ export default function AuthPage() {
         setError("That doesn't look like a valid email address.");
       } else if (code === "auth/weak-password") {
         setError("Password is too weak. Use at least 8 characters.");
+      } else if (code === "auth/operation-not-allowed") {
+        setError("Email registration is not enabled. Please contact support.");
       } else {
-        setError(code === "auth/operation-not-allowed" ? "Email registration is not enabled. Please contact support." : "Registration failed. Please try again.");
+        setError("Registration failed. Please try again.");
       }
       setSubmitting(false);
     }
   };
 
-  // ── Google OAuth ──────────────────────────────────────────────────────────
   const handleGoogleLogin = async () => {
-    setSubmitting(true);
-    setError("");
+    setSubmitting(true); setError("");
     try {
       await loginWithGoogle();
-      // Do NOT navigate here. Let onAuthStateChanged → useEffect do it.
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
-      if (code !== "auth/popup-closed-by-user") {
-        setError("Google sign-in failed. Please try again.");
+      if (code !== "auth/popup-closed-by-user") setError("Google sign-in failed. Please try again.");
+      setSubmitting(false);
+    }
+  };
+
+  const handleGithubLogin = async () => {
+    setSubmitting(true); setError("");
+    try {
+      await loginWithGithub();
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? "";
+      if (code === "auth/account-exists-with-different-credential") {
+        setError("An account already exists with this email. Try signing in with Google or email instead.");
+      } else if (code === "auth/popup-closed-by-user") {
+        // user cancelled — do nothing
+      } else {
+        setError("GitHub sign-in failed. Please try again.");
       }
       setSubmitting(false);
     }
   };
 
-  // ── Loading / redirect in progress ───────────────────────────────────────
   if (loading || submitting) {
     return (
       <div style={{ minHeight: "100vh", background: "#0A0F1E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
@@ -431,7 +448,6 @@ export default function AuthPage() {
       <div style={{ width: "42%", minWidth: 300, position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "2rem", background: "linear-gradient(160deg, #0D1B3E 0%, #0A0F1E 60%, #061A2E 100%)", borderRight: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.18 }}><CityGridSVG /></div>
 
-        {/* Brand */}
         <div style={{ position: "relative", zIndex: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 36, height: 36, background: "#1E6BE6", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -444,7 +460,6 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* Tagline */}
         <div style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "2rem 0" }}>
           <div style={{ fontSize: 11, fontWeight: 500, color: "#1E6BE6", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "0.75rem" }}>Citizen-First Governance</div>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 28, fontWeight: 700, color: "#fff", lineHeight: 1.25, letterSpacing: "-0.5px", marginBottom: "1rem" }}>
@@ -455,7 +470,6 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {/* Stats */}
         <div style={{ position: "relative", zIndex: 2, display: "flex", gap: "1.5rem" }}>
           {[{ num: "12K+", label: "Issues resolved" }, { num: "98", label: "Wards active" }, { num: "4.8★", label: "Citizen rating" }].map(({ num, label }) => (
             <div key={label}>
@@ -465,7 +479,6 @@ export default function AuthPage() {
           ))}
         </div>
 
-        {/* Pulse rings */}
         <div style={{ position: "absolute", bottom: "2rem", right: "-2rem", width: 140, height: 140, borderRadius: "50%", border: "1px solid rgba(30,107,230,0.2)", animation: "authPulse 3s ease-in-out infinite" }} />
         <div style={{ position: "absolute", bottom: "2.5rem", right: "-1.5rem", width: 90, height: 90, borderRadius: "50%", border: "1px solid rgba(30,107,230,0.35)", animation: "authPulse 3s ease-in-out infinite 1s" }} />
         <div style={{ position: "absolute", bottom: "4.5rem", right: "0.5rem", width: 10, height: 10, background: "#1E6BE6", borderRadius: "50%" }} />
@@ -474,7 +487,6 @@ export default function AuthPage() {
       {/* Right panel */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "2.5rem 2rem", background: "#0A0F1E", overflowY: "auto" }}>
         <div style={{ width: "100%", maxWidth: 360 }}>
-          {/* Tab switcher */}
           <div style={{ display: "flex", background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: 4, marginBottom: "2rem", border: "1px solid rgba(255,255,255,0.06)" }}>
             {(["login", "signup"] as Tab[]).map((t) => (
               <button key={t} onClick={() => setTab(t)}
@@ -490,6 +502,7 @@ export default function AuthPage() {
               onSwitch={() => setTab("signup")}
               onLogin={handleLogin}
               onGoogleLogin={handleGoogleLogin}
+              onGithubLogin={handleGithubLogin}
               email={email} setEmail={setEmail}
               password={password} setPassword={setPassword}
               error={error}
@@ -500,6 +513,7 @@ export default function AuthPage() {
               onSwitch={() => setTab("login")}
               onSignup={handleSignup}
               onGoogleLogin={handleGoogleLogin}
+              onGithubLogin={handleGithubLogin}
               email={email} setEmail={setEmail}
               password={password} setPassword={setPassword}
               error={error}
