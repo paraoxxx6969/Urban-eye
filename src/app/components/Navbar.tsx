@@ -20,10 +20,16 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, issues, logout, activities } = useApp();
+
+  // ── Single destructure — no duplicates ───────────────────────────────────
+  const { user, issues, logout, activities, theme, toggleTheme } = useApp();
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const isBlueSteel = theme === "blue-steel";
   const newIssuesCount = issues.filter((i) => i.status === "new" && i.reportedBy !== user?.uid).length;
 
   const notifications = useMemo(() => {
@@ -31,63 +37,33 @@ export default function Navbar() {
     if (!user) return notifs;
     const uid = user.uid;
 
-    // 1. My new issues
     const myNewIssues = issues.filter(i => i.reportedBy === uid);
     if (myNewIssues.length > 0) {
-      notifs.push({
-        icon: "📝",
-        text: `You successfully reported: "${myNewIssues[0].title}"`,
-        time: "Recently"
-      });
+      notifs.push({ icon: "📝", text: `You successfully reported: "${myNewIssues[0].title}"`, time: "Recently" });
     }
 
-    // 2. New issues (reported by others)
     const newOtherIssues = issues.filter(i => i.status === "new" && i.reportedBy !== uid);
     if (newOtherIssues.length > 0) {
-      notifs.push({
-        icon: "🚨",
-        text: `New issue reported: ${newOtherIssues[0].title}`,
-        time: "Recently"
-      });
+      notifs.push({ icon: "🚨", text: `New issue reported: ${newOtherIssues[0].title}`, time: "Recently" });
     }
 
-    // 3. My resolved issues
     const myResolved = issues.filter(i => i.reportedBy === uid && i.status === "resolved");
     if (myResolved.length > 0) {
-      notifs.push({
-        icon: "✅",
-        text: `Your issue has been resolved: ${myResolved[0].title}`,
-        time: "Recently"
-      });
+      notifs.push({ icon: "✅", text: `Your issue has been resolved: ${myResolved[0].title}`, time: "Recently" });
     }
 
-    // 4. Upvotes on my issues
     const myVoted = issues.filter(i => i.reportedBy === uid && i.votes > 0).sort((a, b) => b.votes - a.votes);
     if (myVoted.length > 0) {
-      notifs.push({
-        icon: "⬆️",
-        text: `${myVoted[0].votes} people upvoted your report: "${myVoted[0].title}"`,
-        time: "Recently"
-      });
+      notifs.push({ icon: "⬆️", text: `${myVoted[0].votes} people upvoted your report: "${myVoted[0].title}"`, time: "Recently" });
     }
 
-    // 5. Comments on my issues
     const myCommented = issues.filter(i => i.reportedBy === uid && (i.comments || 0) > 0).sort((a, b) => (b.comments || 0) - (a.comments || 0));
     if (myCommented.length > 0) {
-      notifs.push({
-        icon: "💬",
-        text: `${myCommented[0].comments} comment(s) on your report: "${myCommented[0].title}"`,
-        time: "Recently"
-      });
+      notifs.push({ icon: "💬", text: `${myCommented[0].comments} comment(s) on your report: "${myCommented[0].title}"`, time: "Recently" });
     }
 
-    // Fallback if empty
     if (notifs.length === 0) {
-      notifs.push({
-        icon: "👋",
-        text: "Welcome to Urban Eye! Start reporting issues to see updates here.",
-        time: "Just now"
-      });
+      notifs.push({ icon: "👋", text: "Welcome to Urban Eye! Start reporting issues to see updates here.", time: "Just now" });
     }
 
     return notifs;
@@ -96,16 +72,10 @@ export default function Navbar() {
   const currentNotifsKey = useMemo(() => {
     const myIssuesStats = issues.filter(i => i.reportedBy === user?.uid).map(i => `${i.id}-${i.votes}-${i.comments}-${i.status}`);
     const recentActivityCount = activities?.length || 0;
-    return JSON.stringify({
-      texts: notifications.map(n => n.text),
-      stats: myIssuesStats,
-      activity: recentActivityCount
-    });
+    return JSON.stringify({ texts: notifications.map(n => n.text), stats: myIssuesStats, activity: recentActivityCount });
   }, [notifications, issues, user, activities]);
 
-  const [lastSeenNotifs, setLastSeenNotifs] = useState(() => {
-    return localStorage.getItem("lastSeenNotifs") || "";
-  });
+  const [lastSeenNotifs, setLastSeenNotifs] = useState(() => localStorage.getItem("lastSeenNotifs") || "");
 
   const hasUnread = useMemo(() => {
     if (notifications.length === 1 && notifications[0].text.includes("Welcome")) return false;
@@ -114,8 +84,13 @@ export default function Navbar() {
 
   const [prevIssueCount, setPrevIssueCount] = useState(issues.length);
 
-  const myTotalVotes = useMemo(() => issues.filter(i => i.reportedBy === user?.uid).reduce((acc, i) => acc + (i.votes || 0), 0), [issues, user]);
-  const myTotalComments = useMemo(() => issues.filter(i => i.reportedBy === user?.uid).reduce((acc, i) => acc + (i.comments || 0), 0), [issues, user]);
+  const myTotalVotes = useMemo(() =>
+    issues.filter(i => i.reportedBy === user?.uid).reduce((acc, i) => acc + (i.votes || 0), 0),
+    [issues, user]);
+
+  const myTotalComments = useMemo(() =>
+    issues.filter(i => i.reportedBy === user?.uid).reduce((acc, i) => acc + (i.comments || 0), 0),
+    [issues, user]);
 
   const [prevMyVotes, setPrevMyVotes] = useState(myTotalVotes);
   const [prevMyComments, setPrevMyComments] = useState(myTotalComments);
@@ -126,10 +101,7 @@ export default function Navbar() {
       if (newIssue && newIssue.reportedBy !== user?.uid) {
         toast.info(`New issue reported: ${newIssue.title}`, {
           description: newIssue.location,
-          action: {
-            label: "View",
-            onClick: () => navigate("/map")
-          },
+          action: { label: "View", onClick: () => navigate("/map") },
           className: "border-sky-500/30 bg-[#0a0f1e]/90 backdrop-blur-xl shadow-[0_10px_30px_rgba(14,165,233,0.2)] animate-in slide-in-from-bottom-8 fade-in duration-500 rounded-2xl"
         });
       }
@@ -166,11 +138,6 @@ export default function Navbar() {
     setProfileOpen(false);
   };
 
-  const [searchOpen, setSearchOpen] = useState(false);
-  const { user, issues, logout, theme, toggleTheme } = useApp();
-  const newIssues = issues.filter((i) => i.status === "new").length;
-  const isBlueSteel = theme === "blue-steel";
-
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler);
@@ -181,7 +148,7 @@ export default function Navbar() {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setSearchOpen((open) => !open);
+        setSearchOpen(open => !open);
       }
     };
     document.addEventListener("keydown", down);
@@ -194,7 +161,6 @@ export default function Navbar() {
     setProfileOpen(false);
   }, [location.pathname]);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -216,7 +182,6 @@ export default function Navbar() {
     }
   };
 
-  // Fallback avatar when user has no photo
   const avatarSrc = user?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name ?? "U")}&background=1E6BE6&color=fff&size=64`;
   const displayName = user?.name ?? "User";
   const displayPoints = user?.points ?? 0;
@@ -233,6 +198,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <motion.div
@@ -275,6 +241,7 @@ export default function Navbar() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
+
             {/* Search */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -285,7 +252,7 @@ export default function Navbar() {
               <kbd className="hidden lg:block text-[10px] font-mono bg-white/10 px-1.5 py-0.5 rounded text-slate-500">⌘K</kbd>
             </button>
 
-            {/* ── Theme Toggle Button ── */}
+            {/* Theme Toggle */}
             <motion.button
               onClick={toggleTheme}
               whileTap={{ scale: 0.92 }}
@@ -300,7 +267,6 @@ export default function Navbar() {
               <span className="text-sm">{isBlueSteel ? "☀️" : "🌊"}</span>
               <span className="hidden lg:block">{isBlueSteel ? "Default" : "Blue Steel"}</span>
             </motion.button>
-            {/* ─────────────────────── */}
 
             {/* Notifications */}
             <div className="relative" data-dropdown>
@@ -380,12 +346,10 @@ export default function Navbar() {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-12 w-52 bg-[#0b1020] border border-blue-500/15 rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.5)] overflow-hidden py-1"
                   >
-                    {/* User info header */}
                     <div className="px-4 py-3 border-b border-white/5">
                       <p className="text-sm font-semibold text-white truncate">{displayName}</p>
                       <p className="text-xs text-slate-400 truncate mt-0.5">{user?.email ?? ""}</p>
                     </div>
-
                     <Link
                       to="/profile"
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
@@ -393,7 +357,6 @@ export default function Navbar() {
                       <span className="text-base">👤</span>
                       View profile
                     </Link>
-
                     <Link
                       to="/rewards"
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
@@ -401,7 +364,6 @@ export default function Navbar() {
                       <span className="text-base">🏆</span>
                       Rewards
                     </Link>
-
                     <div className="border-t border-white/5 mt-1 pt-1">
                       <button
                         onClick={handleLogout}
@@ -485,15 +447,11 @@ export default function Navbar() {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-
           <CommandGroup heading="Navigation">
             {NAV_LINKS.map(link => (
               <CommandItem
                 key={link.href}
-                onSelect={() => {
-                  setSearchOpen(false);
-                  navigate(link.href);
-                }}
+                onSelect={() => { setSearchOpen(false); navigate(link.href); }}
               >
                 {link.label === "Dashboard" && <LayoutDashboard className="mr-2 h-4 w-4" />}
                 {link.label === "Report Issue" && <Plus className="mr-2 h-4 w-4" />}
@@ -505,7 +463,6 @@ export default function Navbar() {
               </CommandItem>
             ))}
           </CommandGroup>
-
           <CommandGroup heading="Actions">
             <CommandItem onSelect={() => { setSearchOpen(false); navigate("/report"); }}>
               <Plus className="mr-2 h-4 w-4" />
