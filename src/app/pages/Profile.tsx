@@ -60,6 +60,7 @@ function toLocalDateKey(d: Date): string {
 
 /** Build 52-week × 7-day heatmap grid from the user's activity log. */
 function buildHeatmapFromActivities(activities: UserActivity[]): { grid: HeatmapEntry[]; monthLabels: { label: string; weekIdx: number }[] } {
+  if (!Array.isArray(activities)) return { grid: [], monthLabels: [] };
   const today = new Date();
   today.setHours(23, 59, 59, 999); // include all of today
 
@@ -478,7 +479,8 @@ function IssueRow({ issue }: { issue: Issue }) {
 
 // ── Main Profile Page ─────────────────────────────────────────────────────────
 export default function Profile() {
-  const { user, issues, activities, logout } = useApp();
+  const { user, issues, activities: rawActivities, logout } = useApp();
+  const activities = rawActivities ?? [];
   const navigate = useNavigate();
 
   if (!user) return null;
