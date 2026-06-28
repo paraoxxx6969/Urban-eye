@@ -16,13 +16,13 @@ const DEFAULT_BADGES = [
 
 // Brand vouchers that civic points can be redeemed for. "cost" is in civic points.
 const REDEEM_BRANDS = [
-  { id: "r1", brand: "Zomato", offer: "₹150 off on orders above ₹299", cost: 800, color: "#e23744", logo: "🍔" },
-  { id: "r2", brand: "Lenskart", offer: "20% off eyewear & lenses", cost: 1200, color: "#2bb673", logo: "🕶️" },
-  { id: "r3", brand: "Swiggy", offer: "₹125 off on your next order", cost: 750, color: "#fc8019", logo: "🛵" },
+  { id: "r1", brand: "Zomato", offer: "₹150 off on orders above ₹299", cost: 200, color: "#e23744", logo: "🍔" },
+  { id: "r2", brand: "Lenskart", offer: "20% off eyewear & lenses", cost: 500, color: "#2bb673", logo: "🕶️" },
+  { id: "r3", brand: "Swiggy", offer: "₹125 off on your next order", cost: 200, color: "#fc8019", logo: "🛵" },
   { id: "r4", brand: "Amazon", offer: "₹100 Amazon Pay gift voucher", cost: 1000, color: "#ff9900", logo: "📦" },
-  { id: "r5", brand: "BookMyShow", offer: "Buy 1 Get 1 movie ticket", cost: 900, color: "#c4242b", logo: "🎬" },
-  { id: "r6", brand: "Myntra", offer: "₹200 off fashion & apparel", cost: 1100, color: "#ff3e6c", logo: "👕" },
-  { id: "r7", brand: "Starbucks", offer: "Free tall beverage", cost: 600, color: "#00704a", logo: "☕" },
+  { id: "r5", brand: "BookMyShow", offer: "Buy 1 Get 1 movie ticket", cost: 1000, color: "#c4242b", logo: "🎬" },
+  { id: "r6", brand: "Myntra", offer: "₹200 off fashion & apparel", cost: 600, color: "#ff3e6c", logo: "👕" },
+  { id: "r7", brand: "Starbucks", offer: "Free tall beverage", cost: 1000, color: "#00704a", logo: "☕" },
   { id: "r8", brand: "Uber", offer: "₹100 ride credit", cost: 700, color: "#000000", logo: "🚗" },
 ];
 
