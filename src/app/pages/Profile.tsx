@@ -494,6 +494,45 @@ export default function Profile() {
   const resolved   = myIssues.filter(i => i.status === "resolved");
   const inProgress = myIssues.filter(i => i.status === "in_progress");
 
+  // Generate issue activity chart data (last 6 months)
+  const monthlyActivityData = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const now = new Date();
+    const data = [];
+    
+    // Go back 5 months + current month (6 months total)
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = months[d.getMonth()];
+      const year = d.getFullYear();
+      const monthIdx = d.getMonth();
+
+      // Find issues reported this month
+      let reported = 0;
+      let resolved = 0;
+
+      myIssues.forEach(issue => {
+        let issueDate: Date | null = null;
+        if (issue.reportedAt) {
+          issueDate = new Date(issue.reportedAt);
+        } else if ((issue as any).createdAt) {
+          const ts = (issue as any).createdAt;
+          issueDate = ts.toDate ? ts.toDate() : new Date(ts);
+        }
+
+        if (issueDate && issueDate.getMonth() === monthIdx && issueDate.getFullYear() === year) {
+          reported++;
+          if (issue.status === "resolved") {
+            resolved++;
+          }
+        }
+      });
+
+      data.push({ month: monthName, reported, resolved });
+    }
+    return data;
+  }, [myIssues]);
+
   // Build heatmap from user's activity log (reports, upvotes, status changes, etc.)
   const { grid: heatmapGrid, monthLabels } = useMemo(
     () => buildHeatmapFromActivities(activities),
@@ -629,7 +668,7 @@ export default function Profile() {
             >
               <h3 className="text-sm font-semibold text-white mb-5">Issue Activity</h3>
               <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={MONTHLY_DATA}>
+                <AreaChart data={monthlyActivityData}>
                   <defs>
                     <linearGradient id="reportedGrad2" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.3} />
