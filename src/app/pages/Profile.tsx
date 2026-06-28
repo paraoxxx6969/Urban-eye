@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { ACTIVITY_LOG, MONTHLY_DATA, Issue } from "../data/mockData";
+import { MONTHLY_DATA, Issue } from "../data/mockData";
 import { UserActivity } from "../lib/activityService";
 
 const RANK_TIERS_DATA = [
@@ -183,7 +184,7 @@ function EditIssueModal({
   issue: Issue;
   onClose: () => void;
 }) {
-  const { issues, updateIssueStatus } = useApp();
+  const { updateIssueStatus } = useApp();
   const [title, setTitle] = useState(issue.title);
   const [description, setDescription] = useState(issue.description);
   const [status, setStatus] = useState(issue.status);
@@ -496,6 +497,7 @@ export default function Profile() {
     const now = new Date();
     const data = [];
 
+    
     // Go back 5 months + current month (6 months total)
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -820,10 +822,14 @@ export default function Profile() {
               className="p-4 rounded-2xl border border-white/8 bg-[rgba(11,16,32,0.8)] backdrop-blur-sm"
             >
               <h3 className="text-sm font-semibold text-white mb-4">Activity Timeline</h3>
+              {activities.length === 0 ? (
+                <p className="text-xs text-slate-500 text-center py-4">No activity yet.</p>
+              ) : (
               <div className="relative">
                 <div className="absolute left-4 top-0 bottom-0 w-px bg-white/8" />
                 <div className="space-y-4">
                   {(activities.length > 0 ? activities.slice(0, 10) : ACTIVITY_LOG).map((entry: any, i: number) => (
+                  {(activities.length > 0 ? activities.slice(0, 10) : []).map((entry: any, i: number) => (
                     <motion.div
                       key={entry.id}
                       initial={{ opacity: 0, x: -12 }}
@@ -846,6 +852,7 @@ export default function Profile() {
                   ))}
                 </div>
               </div>
+              )}
             </motion.div>
           </div>
         </div>

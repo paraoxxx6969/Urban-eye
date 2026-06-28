@@ -36,6 +36,38 @@ const PRIORITIES: { value: IssuePriority; label: string; desc: string; color: st
   { value: "critical", label: "Critical", desc: "Immediate danger", color: "#ef4444" },
 ];
 
+// Reads an uploaded photo, downscales it on a canvas, and resolves with a
+// persistent base64 data: URL. We deliberately avoid URL.createObjectURL()
+// here — a blob: URL only lives as long as the browser tab that created it,
+// so once the issue is saved to Firestore and reopened later (or viewed by
+// another user/device) that link is dead and the image disappears. A base64
+// data URL survives reloads and renders for every viewer.
+function fileToCompressedDataUrl(file: File, maxWidth = 1280, quality = 0.75): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => resolve(reader.result as string);
+      img.onload = () => {
+        const scale = Math.min(1, maxWidth / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(reader.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 // ── Real GPS Location Map Component ──────────────────────────────────────────
 function LocationPicker({ onSelect }: {
   onSelect: (data: { lat: number; lng: number; address: string }) => void
@@ -290,12 +322,25 @@ export default function ReportIssue() {
     priority: "medium" as IssuePriority, location: "", lat: 0, lng: 0, image: "",
   });
   const [uploadedImage, setUploadedImage] = useState("");
+  const [imageProcessing, setImageProcessing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function canAdvance() {
     if (step === 1) return form.title.length > 5 && !!form.category && form.description.length > 10;
     if (step === 2) return !!form.location && form.lat !== 0;
     return true;
+  }
+
+  async function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageProcessing(true);
+    try {
+      const dataUrl = await fileToCompressedDataUrl(file);
+      setUploadedImage(dataUrl);
+    } finally {
+      setImageProcessing(false);
+    }
   }
 
   async function handleSubmit() {
@@ -452,10 +497,9 @@ export default function ReportIssue() {
                 <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-500/20 transition-all">
                   <Upload size={22} className="text-blue-400" />
                 </div>
-                <p className="text-white font-medium mb-1">Click to upload photo</p>
+                <p className="text-white font-medium mb-1">{imageProcessing ? "Processing photo..." : "Click to upload photo"}</p>
                 <p className="text-xs text-slate-400">PNG, JPG, WEBP up to 10MB</p>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                  onChange={e => { const f = e.target.files?.[0]; if (f) setUploadedImage(URL.createObjectURL(f)); }} />
+                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
               </div>
               {uploadedImage && (
                 <div className="relative rounded-2xl overflow-hidden border border-white/10">
