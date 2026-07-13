@@ -116,7 +116,7 @@ export const ThreeCity: React.FC = () => {
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
     const speeds = new Float32Array(particleCount);
-    const directions = [];
+    const directions: string[] = [];
 
     // Define random road routes on the grid
     for (let i = 0; i < particleCount; i++) {

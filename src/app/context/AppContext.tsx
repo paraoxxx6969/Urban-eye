@@ -11,12 +11,16 @@ import { getOrCreateUserProfile, UserProfile, updateUserProfile } from "../lib/u
 import { logActivity, subscribeToActivities, UserActivity } from "../lib/activityService";
 import { Issue } from "../data/mockData";
 
+type ThemeName = "default" | "blue-steel";
+
 interface AppContextType {
   user: UserProfile | null;
   firebaseUser: FirebaseUser | null;
   loading: boolean;
   issues: Issue[];
   activities: UserActivity[];
+  theme: ThemeName;
+  toggleTheme: () => void;
   loginWithGoogle: () => Promise<void>;
   loginWithGithub: () => Promise<void>;
   logout: () => Promise<void>;
@@ -25,7 +29,6 @@ interface AppContextType {
   upvoteIssue: (id: string) => Promise<void>;
   updateIssueStatus: (id: string, status: Issue["status"]) => Promise<void>;
   reportFakeIssue: (id: string, reason: string) => Promise<void>;
-  addComment: (id: string, text: string) => Promise<void>;
   updateProfile: (data: { name?: string; photoURL?: string }) => Promise<void>;
   redeemReward: (cost: number) => Promise<string>;
 }
@@ -38,6 +41,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState<ThemeName>(() => {
+    if (typeof window === "undefined") return "default";
+    const saved = window.localStorage.getItem("urbanEyeTheme");
+    return saved === "blue-steel" ? "blue-steel" : "default";
+  });
+
+  // Apply/remove the theme class on <html> and persist the choice
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "blue-steel") {
+      root.classList.add("theme-blue-steel");
+    } else {
+      root.classList.remove("theme-blue-steel");
+    }
+    try {
+      window.localStorage.setItem("urbanEyeTheme", theme);
+    } catch {
+      // localStorage may be unavailable (e.g. private browsing) — ignore
+    }
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(t => (t === "blue-steel" ? "default" : "blue-steel"));
+  }
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
@@ -129,17 +156,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function addComment(id: string, text: string) {
-    if (!user) return;
-    const ref = doc(db, "issues", id);
-    const current = issues.find(i => i.id === id);
-    if (current) {
-      await updateDoc(ref, { comments: (current.comments || 0) + 1 });
-      // Log activity
-      logActivity(user.uid, "comment_added", `Commented on: ${current.title}`, id);
-    }
-  }
-
   async function updateIssueStatus(id: string, status: Issue["status"]) {
     if (!user) return;
     await updateDoc(doc(db, "issues", id), { status });
@@ -189,9 +205,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <AppContext.Provider value={{
       user, firebaseUser, loading, issues, activities,
+      theme, toggleTheme,
       loginWithGoogle, loginWithGithub, logout,
       addIssue, deleteIssue, upvoteIssue, updateIssueStatus,
-      reportFakeIssue, addComment, updateProfile, redeemReward
+      reportFakeIssue, updateProfile, redeemReward
     }}>
       {children}
     </AppContext.Provider>

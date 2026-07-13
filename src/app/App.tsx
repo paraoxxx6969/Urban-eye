@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Toaster } from "sonner";
 import { AppProvider } from "./context/AppContext";
 import Navbar from "./components/Navbar";
 import AuthPage from "./pages/AuthPage";
@@ -11,7 +10,6 @@ import MapView from "./pages/MapView";
 import Kanban from "./pages/Kanban";
 import Rewards from "./pages/Rewards";
 import Profile from "./pages/Profile";
-import RobotDemo from "./pages/RobotDemo";
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
   return (
@@ -28,7 +26,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const location = useLocation();
-  const noNavRoutes = ["/", "/landing", "/demo"];
+  const noNavRoutes = ["/", "/landing"];
   const showNav = !noNavRoutes.includes(location.pathname);
 
   return (
@@ -43,7 +41,6 @@ function AppRoutes() {
         <Route path="/kanban" element={<PageWrapper><Kanban /></PageWrapper>} />
         <Route path="/rewards" element={<PageWrapper><Rewards /></PageWrapper>} />
         <Route path="/profile" element={<PageWrapper><Profile /></PageWrapper>} />
-        <Route path="/demo" element={<PageWrapper><RobotDemo /></PageWrapper>} />
       </Routes>
     </>
   );
@@ -57,7 +54,6 @@ export default function App() {
         <div className="min-h-screen bg-[#050816]">
           <AppRoutes />
         </div>
-        <Toaster theme="dark" position="bottom-right" richColors />
       </AppProvider>
     </BrowserRouter>
   );

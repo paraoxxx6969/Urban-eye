@@ -10,26 +10,25 @@ import {
   Edit3, CheckCircle2, Clock, MoreVertical, Trash2, Pencil, X, AlertTriangle
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
-import { ACTIVITY_LOG, MONTHLY_DATA, Issue } from "../data/mockData";
 import { MONTHLY_DATA, Issue } from "../data/mockData";
 import { UserActivity } from "../lib/activityService";
 
 const RANK_TIERS_DATA = [
-  { name: "Newcomer", minPoints: 0, maxPoints: 500, color: "#64748b", icon: "🌱" },
-  { name: "Issue Tracker", minPoints: 500, maxPoints: 2000, color: "#f59e0b", icon: "🔍" },
-  { name: "Community Star", minPoints: 2000, maxPoints: 4000, color: "#06b6d4", icon: "⭐" },
-  { name: "City Champion", minPoints: 4000, maxPoints: 6000, color: "#3b82f6", icon: "🏆" },
-  { name: "Civic Pioneer", minPoints: 6000, maxPoints: 8000, color: "#8b5cf6", icon: "🚀" },
-  { name: "City Guardian", minPoints: 8000, maxPoints: 10000, color: "#ec4899", icon: "🛡️" },
+  { name: "Newcomer",       minPoints: 0,     maxPoints: 500,   color: "#64748b", icon: "🌱" },
+  { name: "Issue Tracker",  minPoints: 500,   maxPoints: 2000,  color: "#f59e0b", icon: "🔍" },
+  { name: "Community Star", minPoints: 2000,  maxPoints: 4000,  color: "#06b6d4", icon: "⭐" },
+  { name: "City Champion",  minPoints: 4000,  maxPoints: 6000,  color: "#3b82f6", icon: "🏆" },
+  { name: "Civic Pioneer",  minPoints: 6000,  maxPoints: 8000,  color: "#8b5cf6", icon: "🚀" },
+  { name: "City Guardian",  minPoints: 8000,  maxPoints: 10000, color: "#ec4899", icon: "🛡️" },
 ];
 
 const DEFAULT_BADGES = [
-  { id: "b1", name: "First Report", description: "Submitted your first civic issue", icon: "🏙️", unlocked: false, progress: 0, total: 1 },
-  { id: "b2", name: "Community Voice", description: "Reported 10+ issues", icon: "📢", unlocked: false, progress: 0, total: 10 },
-  { id: "b3", name: "Problem Solver", description: "Had 25 issues resolved", icon: "✅", unlocked: false, progress: 0, total: 25 },
-  { id: "b4", name: "Neighborhood Hero", description: "Earned 5000 civic points", icon: "🦸", unlocked: false, progress: 0, total: 5000 },
-  { id: "b5", name: "Trend Setter", description: "Get 100 upvotes on a single issue", icon: "🔥", unlocked: false, progress: 0, total: 100 },
-  { id: "b6", name: "City Architect", description: "Report 100 issues", icon: "🏛️", unlocked: false, progress: 0, total: 100 },
+  { id: "b1", name: "First Report",       description: "Submitted your first civic issue",  icon: "🏙️", unlocked: false, progress: 0,    total: 1     },
+  { id: "b2", name: "Community Voice",    description: "Reported 10+ issues",               icon: "📢", unlocked: false, progress: 0,    total: 10    },
+  { id: "b3", name: "Problem Solver",     description: "Had 25 issues resolved",            icon: "✅", unlocked: false, progress: 0,    total: 25    },
+  { id: "b4", name: "Neighborhood Hero",  description: "Earned 5000 civic points",          icon: "🦸", unlocked: false, progress: 0,    total: 5000  },
+  { id: "b5", name: "Trend Setter",       description: "Get 100 upvotes on a single issue", icon: "🔥", unlocked: false, progress: 0,    total: 100   },
+  { id: "b6", name: "City Architect",     description: "Report 100 issues",                 icon: "🏛️", unlocked: false, progress: 0,    total: 100   },
 ];
 
 const ACTIVITY_ICONS: Record<string, string> = {
@@ -275,14 +274,15 @@ function EditIssueModal({
                 <button
                   key={s}
                   onClick={() => setStatus(s)}
-                  className={`flex-1 py-2 rounded-xl border text-xs font-medium capitalize transition-all ${status === s
-                    ? s === "resolved"
-                      ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
-                      : s === "in_progress"
+                  className={`flex-1 py-2 rounded-xl border text-xs font-medium capitalize transition-all ${
+                    status === s
+                      ? s === "resolved"
+                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                        : s === "in_progress"
                         ? "bg-blue-500/20 border-blue-500/40 text-blue-300"
                         : "bg-slate-500/20 border-slate-500/40 text-slate-300"
-                    : "bg-white/3 border-white/8 text-slate-500 hover:text-white"
-                    }`}
+                      : "bg-white/3 border-white/8 text-slate-500 hover:text-white"
+                  }`}
                 >
                   {s.replace("_", " ")}
                 </button>
@@ -306,10 +306,11 @@ function EditIssueModal({
           <button
             onClick={handleSave}
             disabled={saving || saved}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${saved
-              ? "bg-emerald-600 text-white"
-              : "bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_16px_rgba(59,130,246,0.3)]"
-              } disabled:opacity-60`}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              saved
+                ? "bg-emerald-600 text-white"
+                : "bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_16px_rgba(59,130,246,0.3)]"
+            } disabled:opacity-60`}
           >
             {saved ? "Saved ✓" : saving ? "Saving..." : "Save Changes"}
           </button>
@@ -375,12 +376,13 @@ function IssueRow({ issue }: { issue: Issue }) {
         </div>
 
         <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 ${issue.status === "resolved"
-            ? "bg-emerald-500/15 text-emerald-400"
-            : issue.status === "in_progress"
+          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 ${
+            issue.status === "resolved"
+              ? "bg-emerald-500/15 text-emerald-400"
+              : issue.status === "in_progress"
               ? "bg-blue-500/15 text-blue-400"
               : "bg-slate-500/15 text-slate-400"
-            }`}
+          }`}
         >
           {issue.status.replace("_", " ")}
         </span>
@@ -426,10 +428,11 @@ function IssueRow({ issue }: { issue: Issue }) {
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs transition-colors text-left disabled:opacity-50 ${confirmDelete
-                    ? "bg-red-500/15 text-red-300 hover:bg-red-500/25"
-                    : "text-slate-300 hover:text-red-300 hover:bg-white/6"
-                    }`}
+                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs transition-colors text-left disabled:opacity-50 ${
+                    confirmDelete
+                      ? "bg-red-500/15 text-red-300 hover:bg-red-500/25"
+                      : "text-slate-300 hover:text-red-300 hover:bg-white/6"
+                  }`}
                 >
                   {deleting ? (
                     <>
@@ -473,10 +476,136 @@ function IssueRow({ issue }: { issue: Issue }) {
   );
 }
 
+// ── Edit Profile Modal ───────────────────────────────────────────────────────
+function EditProfileModal({ onClose }: { onClose: () => void }) {
+  const { user, updateProfile: updateUserProfile } = useApp();
+  const [name, setName] = useState(user?.name ?? "");
+  const [photoURL, setPhotoURL] = useState(user?.photoURL ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSave() {
+    if (!name.trim()) { setError("Name can't be empty."); return; }
+    setSaving(true);
+    setError("");
+    try {
+      await updateUserProfile({ name: name.trim(), photoURL: photoURL.trim() });
+      setSaved(true);
+      setTimeout(onClose, 900);
+    } catch (err) {
+      console.error("Profile update failed:", err);
+      setError("Couldn't save your profile. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      style={{ background: "rgba(5,8,22,0.85)", backdropFilter: "blur(6px)" }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        onClick={e => e.stopPropagation()}
+        className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b1020] shadow-2xl overflow-hidden"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+          <div className="flex items-center gap-2">
+            <Edit3 size={14} className="text-blue-400" />
+            <h3 className="text-sm font-semibold text-white">Edit Profile</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/8 transition-all"
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-5 space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300">
+              <AlertTriangle size={13} />
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <img
+              src={
+                photoURL ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(name || "Citizen")}&background=1E6BE6&color=fff&size=100`
+              }
+              alt=""
+              className="w-14 h-14 rounded-xl object-cover border-2 border-white/10 flex-shrink-0"
+            />
+            <div className="flex-1 min-w-0">
+              <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+                Photo URL
+              </label>
+              <input
+                type="text"
+                value={photoURL}
+                onChange={e => setPhotoURL(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-blue-500/50 transition-all placeholder-slate-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+              Display Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500/50 transition-all placeholder-slate-500"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 pb-5 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-white/10 bg-white/4 text-sm text-slate-300 hover:text-white transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || saved}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              saved
+                ? "bg-emerald-600 text-white"
+                : "bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_16px_rgba(59,130,246,0.3)]"
+            } disabled:opacity-60`}
+          >
+            {saved ? "Saved ✓" : saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ── Main Profile Page ─────────────────────────────────────────────────────────
 export default function Profile() {
   const { user, issues, activities, logout } = useApp();
   const navigate = useNavigate();
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
 
   if (!user) return null;
 
@@ -484,19 +613,38 @@ export default function Profile() {
     user.photoURL ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=1E6BE6&color=fff&size=100`;
 
-  const badges = DEFAULT_BADGES;
   const myIssues = issues.filter(
     i => i.reportedBy === user.uid || i.reportedBy === user.name
   );
-  const resolved = myIssues.filter(i => i.status === "resolved");
+  const resolved   = myIssues.filter(i => i.status === "resolved");
   const inProgress = myIssues.filter(i => i.status === "in_progress");
+
+  const reportsFiled = user.reportsFiled ?? myIssues.length;
+  const reportsResolved = user.reportsResolved ?? resolved.length;
+  const maxUpvotes = myIssues.reduce((max, i) => Math.max(max, i.votes || 0), 0);
+
+  // Compute live badge progress/unlock state from the user's actual stats
+  // (previously this always showed the static, all-locked defaults).
+  const badges = useMemo(() => {
+    const progressFor: Record<string, number> = {
+      b1: reportsFiled,
+      b2: reportsFiled,
+      b3: reportsResolved,
+      b4: user.points,
+      b5: maxUpvotes,
+      b6: reportsFiled,
+    };
+    return DEFAULT_BADGES.map(b => {
+      const progress = Math.min(progressFor[b.id] ?? 0, b.total);
+      return { ...b, progress, unlocked: progress >= b.total };
+    });
+  }, [reportsFiled, reportsResolved, user.points, maxUpvotes]);
 
   // Generate issue activity chart data (last 6 months)
   const monthlyActivityData = useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const now = new Date();
     const data = [];
-
     
     // Go back 5 months + current month (6 months total)
     for (let i = 5; i >= 0; i--) {
@@ -549,12 +697,12 @@ export default function Profile() {
     myIssues.length > 0 ? Math.round((resolved.length / myIssues.length) * 100) : 0;
 
   const profileStats = [
-    { label: "Issues Reported", value: user.reportsFiled ?? myIssues.length, icon: MapPin, color: "#3b82f6" },
-    { label: "Resolved", value: user.reportsResolved ?? resolved.length, icon: CheckCircle2, color: "#10b981" },
-    { label: "In Progress", value: inProgress.length, icon: Clock, color: "#f59e0b" },
-    { label: "Resolution Rate", value: `${resolutionRate}%`, icon: TrendingUp, color: "#8b5cf6" },
-    { label: "Civic Points", value: user.points.toLocaleString(), icon: Star, color: "#f59e0b" },
-    { label: "Badges Earned", value: badges.filter(b => b.unlocked).length, icon: Award, color: "#06b6d4" },
+    { label: "Issues Reported", value: reportsFiled,                                icon: MapPin,       color: "#3b82f6" },
+    { label: "Resolved",        value: reportsResolved,                             icon: CheckCircle2, color: "#10b981" },
+    { label: "In Progress",     value: inProgress.length,                           icon: Clock,        color: "#f59e0b" },
+    { label: "Resolution Rate", value: `${resolutionRate}%`,                        icon: TrendingUp,   color: "#8b5cf6" },
+    { label: "Civic Points",    value: user.points.toLocaleString(),                icon: Star,         color: "#f59e0b" },
+    { label: "Badges Earned",   value: badges.filter(b => b.unlocked).length,       icon: Award,        color: "#06b6d4" },
   ];
 
   return (
@@ -629,7 +777,10 @@ export default function Profile() {
                 >
                   Sign Out
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 bg-white/5 text-sm text-slate-300 hover:text-white hover:bg-white/8 transition-all">
+                <button
+                  onClick={() => setEditProfileOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 bg-white/5 text-sm text-slate-300 hover:text-white hover:bg-white/8 transition-all"
+                >
                   <Edit3 size={13} /> Edit Profile
                 </button>
               </div>
@@ -669,11 +820,11 @@ export default function Profile() {
                 <AreaChart data={monthlyActivityData}>
                   <defs>
                     <linearGradient id="reportedGrad2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="5%"  stopColor="#3b82f6" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="resolvedGrad2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="5%"  stopColor="#10b981" stopOpacity={0.3} />
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -801,10 +952,11 @@ export default function Profile() {
                 {badges.map(badge => (
                   <div
                     key={badge.id}
-                    className={`flex flex-col items-center p-2 rounded-xl transition-all ${badge.unlocked
-                      ? "bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/8"
-                      : "bg-white/3 border border-white/5 opacity-40"
-                      }`}
+                    className={`flex flex-col items-center p-2 rounded-xl transition-all ${
+                      badge.unlocked
+                        ? "bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/8"
+                        : "bg-white/3 border border-white/5 opacity-40"
+                    }`}
                     title={badge.description}
                   >
                     <span className="text-xl">{badge.icon}</span>
@@ -828,7 +980,6 @@ export default function Profile() {
               <div className="relative">
                 <div className="absolute left-4 top-0 bottom-0 w-px bg-white/8" />
                 <div className="space-y-4">
-                  {(activities.length > 0 ? activities.slice(0, 10) : ACTIVITY_LOG).map((entry: any, i: number) => (
                   {(activities.length > 0 ? activities.slice(0, 10) : []).map((entry: any, i: number) => (
                     <motion.div
                       key={entry.id}
@@ -857,6 +1008,12 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {editProfileOpen && (
+          <EditProfileModal onClose={() => setEditProfileOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

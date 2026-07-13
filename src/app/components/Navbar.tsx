@@ -1,9 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Bell, Search, ChevronDown, Zap, LogOut, LayoutDashboard, Map as MapIcon, User, Award, FileText, Settings, Plus } from "lucide-react";
-import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "./ui/command";
-import { toast } from "sonner";
+import { Menu, X, Bell, Search, ChevronDown, Zap, LogOut } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
 const NAV_LINKS = [
@@ -20,123 +18,12 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
-
-  // ── Single destructure — no duplicates ───────────────────────────────────
-  const { user, issues, logout, activities, theme, toggleTheme } = useApp();
-  // ─────────────────────────────────────────────────────────────────────────
-
+  const { user, issues, logout, theme, toggleTheme } = useApp();
+  const newIssues = issues.filter((i) => i.status === "new").length;
   const isBlueSteel = theme === "blue-steel";
-  const newIssuesCount = issues.filter((i) => i.status === "new" && i.reportedBy !== user?.uid).length;
-
-  const notifications = useMemo(() => {
-    const notifs: { icon: string; text: string; time: string }[] = [];
-    if (!user) return notifs;
-    const uid = user.uid;
-
-    const myNewIssues = issues.filter(i => i.reportedBy === uid);
-    if (myNewIssues.length > 0) {
-      notifs.push({ icon: "📝", text: `You successfully reported: "${myNewIssues[0].title}"`, time: "Recently" });
-    }
-
-    const newOtherIssues = issues.filter(i => i.status === "new" && i.reportedBy !== uid);
-    if (newOtherIssues.length > 0) {
-      notifs.push({ icon: "🚨", text: `New issue reported: ${newOtherIssues[0].title}`, time: "Recently" });
-    }
-
-    const myResolved = issues.filter(i => i.reportedBy === uid && i.status === "resolved");
-    if (myResolved.length > 0) {
-      notifs.push({ icon: "✅", text: `Your issue has been resolved: ${myResolved[0].title}`, time: "Recently" });
-    }
-
-    const myVoted = issues.filter(i => i.reportedBy === uid && i.votes > 0).sort((a, b) => b.votes - a.votes);
-    if (myVoted.length > 0) {
-      notifs.push({ icon: "⬆️", text: `${myVoted[0].votes} people upvoted your report: "${myVoted[0].title}"`, time: "Recently" });
-    }
-
-    const myCommented = issues.filter(i => i.reportedBy === uid && (i.comments || 0) > 0).sort((a, b) => (b.comments || 0) - (a.comments || 0));
-    if (myCommented.length > 0) {
-      notifs.push({ icon: "💬", text: `${myCommented[0].comments} comment(s) on your report: "${myCommented[0].title}"`, time: "Recently" });
-    }
-
-    if (notifs.length === 0) {
-      notifs.push({ icon: "👋", text: "Welcome to Urban Eye! Start reporting issues to see updates here.", time: "Just now" });
-    }
-
-    return notifs;
-  }, [issues, user]);
-
-  const currentNotifsKey = useMemo(() => {
-    const myIssuesStats = issues.filter(i => i.reportedBy === user?.uid).map(i => `${i.id}-${i.votes}-${i.comments}-${i.status}`);
-    const recentActivityCount = activities?.length || 0;
-    return JSON.stringify({ texts: notifications.map(n => n.text), stats: myIssuesStats, activity: recentActivityCount });
-  }, [notifications, issues, user, activities]);
-
-  const [lastSeenNotifs, setLastSeenNotifs] = useState(() => localStorage.getItem("lastSeenNotifs") || "");
-
-  const hasUnread = useMemo(() => {
-    if (notifications.length === 1 && notifications[0].text.includes("Welcome")) return false;
-    return currentNotifsKey !== lastSeenNotifs;
-  }, [notifications, currentNotifsKey, lastSeenNotifs]);
-
-  const [prevIssueCount, setPrevIssueCount] = useState(issues.length);
-
-  const myTotalVotes = useMemo(() =>
-    issues.filter(i => i.reportedBy === user?.uid).reduce((acc, i) => acc + (i.votes || 0), 0),
-    [issues, user]);
-
-  const myTotalComments = useMemo(() =>
-    issues.filter(i => i.reportedBy === user?.uid).reduce((acc, i) => acc + (i.comments || 0), 0),
-    [issues, user]);
-
-  const [prevMyVotes, setPrevMyVotes] = useState(myTotalVotes);
-  const [prevMyComments, setPrevMyComments] = useState(myTotalComments);
-
-  useEffect(() => {
-    if (issues.length > prevIssueCount) {
-      const newIssue = issues[0];
-      if (newIssue && newIssue.reportedBy !== user?.uid) {
-        toast.info(`New issue reported: ${newIssue.title}`, {
-          description: newIssue.location,
-          action: { label: "View", onClick: () => navigate("/map") },
-          className: "border-sky-500/30 bg-[#0a0f1e]/90 backdrop-blur-xl shadow-[0_10px_30px_rgba(14,165,233,0.2)] animate-in slide-in-from-bottom-8 fade-in duration-500 rounded-2xl"
-        });
-      }
-      setPrevIssueCount(issues.length);
-    }
-  }, [issues, prevIssueCount, user, navigate]);
-
-  useEffect(() => {
-    if (myTotalVotes > prevMyVotes) {
-      toast("Someone upvoted your report!", {
-        icon: "⬆️",
-        className: "border-cyan-500/30 bg-[#0a0f1e]/90 backdrop-blur-xl shadow-[0_10px_30px_rgba(6,182,212,0.2)] animate-in slide-in-from-bottom-8 fade-in duration-500 rounded-2xl"
-      });
-      setPrevMyVotes(myTotalVotes);
-    }
-  }, [myTotalVotes, prevMyVotes]);
-
-  useEffect(() => {
-    if (myTotalComments > prevMyComments) {
-      toast("Someone commented on your report!", {
-        icon: "💬",
-        className: "border-purple-500/30 bg-[#0a0f1e]/90 backdrop-blur-xl shadow-[0_10px_30px_rgba(168,85,247,0.2)] animate-in slide-in-from-bottom-8 fade-in duration-500 rounded-2xl"
-      });
-      setPrevMyComments(myTotalComments);
-    }
-  }, [myTotalComments, prevMyComments]);
-
-  const handleNotifClick = () => {
-    if (!notifOpen) {
-      setLastSeenNotifs(currentNotifsKey);
-      localStorage.setItem("lastSeenNotifs", currentNotifsKey);
-    }
-    setNotifOpen(!notifOpen);
-    setProfileOpen(false);
-  };
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -145,22 +32,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setSearchOpen(open => !open);
-      }
-    };
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
-
-  useEffect(() => {
     setMenuOpen(false);
     setNotifOpen(false);
     setProfileOpen(false);
   }, [location.pathname]);
 
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -182,6 +59,7 @@ export default function Navbar() {
     }
   };
 
+  // Fallback avatar when user has no photo
   const avatarSrc = user?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name ?? "U")}&background=1E6BE6&color=fff&size=64`;
   const displayName = user?.name ?? "User";
   const displayPoints = user?.points ?? 0;
@@ -191,14 +69,14 @@ export default function Navbar() {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-        ? "bg-[rgba(5,8,22,0.92)] backdrop-blur-xl border-b border-blue-500/10 shadow-[0_4px_32px_rgba(59,130,246,0.06)]"
-        : "bg-transparent"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[rgba(5,8,22,0.92)] backdrop-blur-xl border-b border-blue-500/10 shadow-[0_4px_32px_rgba(59,130,246,0.06)]"
+          : "bg-transparent"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <motion.div
@@ -221,10 +99,11 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  className={`relative px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive
-                    ? "text-white"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-                    }`}
+                  className={`relative px-3.5 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? "text-white"
+                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                  }`}
                 >
                   {isActive && (
                     <motion.span
@@ -241,18 +120,14 @@ export default function Navbar() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
-
             {/* Search */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/8 bg-white/5 text-slate-400 text-sm hover:bg-white/8 hover:text-white transition-all duration-200"
-            >
+            <button className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/8 bg-white/5 text-slate-400 text-sm hover:bg-white/8 hover:text-white transition-all duration-200">
               <Search size={13} />
               <span className="hidden lg:block text-xs">Search</span>
               <kbd className="hidden lg:block text-[10px] font-mono bg-white/10 px-1.5 py-0.5 rounded text-slate-500">⌘K</kbd>
             </button>
 
-            {/* Theme Toggle */}
+            {/* ── Theme Toggle Button ── */}
             <motion.button
               onClick={toggleTheme}
               whileTap={{ scale: 0.92 }}
@@ -267,15 +142,16 @@ export default function Navbar() {
               <span className="text-sm">{isBlueSteel ? "☀️" : "🌊"}</span>
               <span className="hidden lg:block">{isBlueSteel ? "Default" : "Blue Steel"}</span>
             </motion.button>
+            {/* ─────────────────────── */}
 
             {/* Notifications */}
             <div className="relative" data-dropdown>
               <button
-                onClick={handleNotifClick}
+                onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
                 className="relative w-9 h-9 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200"
               >
                 <Bell size={15} />
-                {hasUnread && (
+                {newIssues > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
                 )}
               </button>
@@ -290,11 +166,13 @@ export default function Navbar() {
                   >
                     <div className="p-4 border-b border-white/5">
                       <p className="text-sm font-semibold text-white">Notifications</p>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {newIssuesCount > 0 ? `${newIssuesCount} new issues in your area` : "You're all caught up"}
-                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">{newIssues} new issues in your area</p>
                     </div>
-                    {notifications.map((n, i) => (
+                    {[
+                      { icon: "🚨", text: "Critical: Water main leak on Oak St", time: "2m ago" },
+                      { icon: "✅", text: "Your issue #i6 has been resolved", time: "1h ago" },
+                      { icon: "⬆️", text: "15 people upvoted your report", time: "3h ago" },
+                    ].map((n, i) => (
                       <div key={i} className="flex items-start gap-3 p-3 hover:bg-white/5 cursor-pointer transition-colors">
                         <span className="text-base mt-0.5">{n.icon}</span>
                         <div className="flex-1 min-w-0">
@@ -303,14 +181,6 @@ export default function Navbar() {
                         </div>
                       </div>
                     ))}
-                    <div className="p-2 border-t border-white/5 bg-white/[0.02]">
-                      <button
-                        onClick={() => { setNotifOpen(false); navigate("/kanban"); }}
-                        className="w-full py-2 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        View all activity
-                      </button>
-                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -346,10 +216,12 @@ export default function Navbar() {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-12 w-52 bg-[#0b1020] border border-blue-500/15 rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.5)] overflow-hidden py-1"
                   >
+                    {/* User info header */}
                     <div className="px-4 py-3 border-b border-white/5">
                       <p className="text-sm font-semibold text-white truncate">{displayName}</p>
                       <p className="text-xs text-slate-400 truncate mt-0.5">{user?.email ?? ""}</p>
                     </div>
+
                     <Link
                       to="/profile"
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
@@ -357,6 +229,7 @@ export default function Navbar() {
                       <span className="text-base">👤</span>
                       View profile
                     </Link>
+
                     <Link
                       to="/rewards"
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
@@ -364,6 +237,7 @@ export default function Navbar() {
                       <span className="text-base">🏆</span>
                       Rewards
                     </Link>
+
                     <div className="border-t border-white/5 mt-1 pt-1">
                       <button
                         onClick={handleLogout}
@@ -405,10 +279,11 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     to={link.href}
-                    className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                      ? "bg-blue-500/15 text-white border border-blue-500/20"
-                      : "text-slate-400 hover:text-white hover:bg-white/5"
-                      }`}
+                    className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      isActive
+                        ? "bg-blue-500/15 text-white border border-blue-500/20"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    }`}
                   >
                     {link.label}
                   </Link>
@@ -441,40 +316,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Command Palette */}
-      <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <CommandInput placeholder="Type a command or search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Navigation">
-            {NAV_LINKS.map(link => (
-              <CommandItem
-                key={link.href}
-                onSelect={() => { setSearchOpen(false); navigate(link.href); }}
-              >
-                {link.label === "Dashboard" && <LayoutDashboard className="mr-2 h-4 w-4" />}
-                {link.label === "Report Issue" && <Plus className="mr-2 h-4 w-4" />}
-                {link.label === "City Map" && <MapIcon className="mr-2 h-4 w-4" />}
-                {link.label === "Kanban" && <FileText className="mr-2 h-4 w-4" />}
-                {link.label === "Rewards" && <Award className="mr-2 h-4 w-4" />}
-                {link.label === "Profile" && <User className="mr-2 h-4 w-4" />}
-                <span>{link.label}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-          <CommandGroup heading="Actions">
-            <CommandItem onSelect={() => { setSearchOpen(false); navigate("/report"); }}>
-              <Plus className="mr-2 h-4 w-4" />
-              <span>Report New Issue</span>
-            </CommandItem>
-            <CommandItem onSelect={() => { setSearchOpen(false); navigate("/profile"); }}>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Account Settings</span>
-            </CommandItem>
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
     </motion.nav>
   );
 }
